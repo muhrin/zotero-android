@@ -53,7 +53,7 @@ internal fun ReaderBox(
                 .onSizeChanged { layoutSize -> containerSize = layoutSize }
         ) {
             key(viewState.webViewGeneration) {
-                ReaderWebView(viewModel = viewModel)
+                ReaderWebView(viewModel = viewModel, activeTool = viewState.activeTool)
             }
             if (viewState.showCreationToolbar && containerSize != IntSize.Zero) {
                 ReaderAnnotationCreationToolbar(

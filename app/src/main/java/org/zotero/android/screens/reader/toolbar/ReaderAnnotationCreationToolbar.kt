@@ -59,6 +59,12 @@ import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.layout.boundsInWindow
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.runtime.DisposableEffect
+import android.graphics.Rect
+import org.zotero.android.screens.reader.boox.BooxPenExclusions
+import org.zotero.android.screens.reader.boox.BooxUtils
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
@@ -391,6 +397,17 @@ internal fun BoxScope.ReaderAnnotationCreationToolbar(
             shape = surfaceShape
         )
         .clip(surfaceShape)
+        .onGloballyPositioned { coordinates ->
+            if (BooxUtils.isOnyxDevice) {
+                val b = coordinates.boundsInWindow()
+                BooxPenExclusions.setToolbar(
+                    Rect(b.left.roundToInt(), b.top.roundToInt(), b.right.roundToInt(), b.bottom.roundToInt())
+                )
+            }
+        }
+    DisposableEffect(Unit) {
+        onDispose { BooxPenExclusions.setToolbar(null) }
+    }
 
     if (position == ReaderToolbarPosition.Top) {
         BoxWithConstraints(

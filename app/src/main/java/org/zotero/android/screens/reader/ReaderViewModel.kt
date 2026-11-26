@@ -85,6 +85,7 @@ import org.zotero.android.screens.reader.colorpicker.data.ReaderColorPickerArgs
 import org.zotero.android.screens.reader.colorpicker.data.ReaderColorPickerResult
 import org.zotero.android.screens.reader.data.NewReaderAnnotation
 import org.zotero.android.screens.reader.data.ReaderAnnotation
+import org.zotero.android.screens.reader.boox.BooxUtils
 import org.zotero.android.screens.reader.data.ReaderAnnotationTool
 import org.zotero.android.screens.reader.data.ReaderAnnotationsFilter
 import org.zotero.android.screens.reader.data.ReaderArgs
@@ -1169,6 +1170,54 @@ class ReaderViewModel @Inject constructor(
         viewModelScope.launch {
             val color = viewState.toolColors[tool]
             toggle(annotationTool = tool, colorHex = color)
+        }
+    }
+
+    private var toolBeforePenEraser: ReaderAnnotationTool? = null
+
+    /** Boox: with the PDF annotation toolbar showing and no tool selected, the pen selects ink or the eraser itself. */
+    private fun penAutoSelectsTools(): Boolean =
+        viewState.fileType == ReaderFileType.PDF && !viewState.readingModeEnabled && viewState.showCreationToolbar
+
+    /** Boox: the pen's tip came near the page. */
+    fun onPenTipNear() {
+        viewModelScope.launch {
+            val color = viewState.toolColors[ReaderAnnotationTool.ink]
+            if (viewState.activeTool == null && penAutoSelectsTools() && color != null) {
+                updateAnnotationToolDrawColorAndSize(annotationTool = ReaderAnnotationTool.ink, colorHex = color)
+            }
+        }
+    }
+
+    /** Boox: the ink tool's color, whichever tool is active right now. */
+    fun inkColorHex(): String? = viewState.toolColors[ReaderAnnotationTool.ink]
+
+    /**
+     * Boox: the pen's eraser end is hovering near the screen (or the tip is back). While the ink tool is
+     * active, the eraser end acts as if the eraser tool was selected, and ink is restored afterwards.
+     */
+    fun onPenEraserNear(near: Boolean) {
+        viewModelScope.launch {
+            if (near) {
+                val current = viewState.activeTool
+                if (current == ReaderAnnotationTool.ink || (current == null && penAutoSelectsTools())) {
+                    // With the toolbar showing but no tool selected, the pen picks ink (restored afterwards)
+                    toolBeforePenEraser = ReaderAnnotationTool.ink
+                    updateAnnotationToolDrawColorAndSize(
+                        annotationTool = ReaderAnnotationTool.eraser,
+                        colorHex = viewState.toolColors[ReaderAnnotationTool.eraser]
+                    )
+                }
+            } else {
+                val previous = toolBeforePenEraser ?: return@launch
+                toolBeforePenEraser = null
+                if (viewState.activeTool == ReaderAnnotationTool.eraser) {
+                    updateAnnotationToolDrawColorAndSize(
+                        annotationTool = previous,
+                        colorHex = viewState.toolColors[previous]
+                    )
+                }
+            }
         }
     }
 
@@ -2504,7 +2553,13 @@ class ReaderViewModel @Inject constructor(
             ReaderAnnotationTool.eraser -> {
                 readerWebCallChainExecutor.setTool(
                     toolName = "eraser",
-                    size = this.activeEraserSize
+                    size = if (BooxUtils.isOnyxDevice) {
+                        // The reader only sees one pen position per (slow e-ink) frame, so a fast sweep
+                        // skips ink inside a small eraser circle.
+                        this.activeEraserSize * BooxUtils.ERASER_SIZE_MULTIPLIER
+                    } else {
+                        this.activeEraserSize
+                    }
                 )
             }
         }

@@ -3,6 +3,9 @@ object Libs {
     const val androidJUnitRunner = "androidx.test.runner.AndroidJUnitRunner"
 
     const val nutrient = "com.pspdfkit:pspdfkit:2024.4.0"
+    const val onyxPen = "com.onyx.android.sdk:onyxsdk-pen:1.5.4.4"
+    const val onyxDevice = "com.onyx.android.sdk:onyxsdk-device:1.3.5.3"
+    const val hiddenApiBypass = "org.lsposed.hiddenapibypass:hiddenapibypass:4.3"
     const val googleServices = "com.google.gms:google-services:4.5.0"
     const val realmGradlePlugin = "io.realm:realm-gradle-plugin:10.19.0"
     const val materialDesign = "com.google.android.material:material:1.14.0"

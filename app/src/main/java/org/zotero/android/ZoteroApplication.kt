@@ -17,6 +17,7 @@ import org.zotero.android.architecture.crashreporting.FirebaseCrashReportingTree
 import org.zotero.android.architecture.logging.crash.CrashFileWriter
 import org.zotero.android.architecture.logging.debug.DebugLoggingTree
 import org.zotero.android.files.FileStore
+import org.zotero.android.screens.reader.boox.BooxUtils
 import org.zotero.android.sync.Controllers
 import timber.log.Timber
 import javax.inject.Inject
@@ -57,6 +58,7 @@ open class ZoteroApplication: Application(), DefaultLifecycleObserver {
         super<Application>.onCreate()
         instance = this
         setUpLogging()
+        BooxUtils.init(this)
 
         controllers.init()
 

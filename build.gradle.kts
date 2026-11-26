@@ -35,6 +35,11 @@ allprojects {
         maven {
             url = uri("https://my.nutrient.io/maven")
         }
+        // Onyx (Boox) e-ink pen SDK
+        maven {
+            url = uri("http://repo.boox.com/repository/maven-public/")
+            isAllowInsecureProtocol = true
+        }
     }
 
     tasks.withType<KotlinJvmCompile>().configureEach {

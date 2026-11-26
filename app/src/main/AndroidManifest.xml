@@ -2,6 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <!-- The Onyx pen SDK declares minSdk 24; it is only ever used on Onyx (Boox) devices. -->
+    <uses-sdk tools:overrideLibrary="com.onyx.android.sdk, com.onyx.android.sdk.pen, com.onyx.android.sdk.geometry, com.onyx.android.sdk.baselite, com.onyx.android.sdk.penbrush, com.onyx.android.sdk.pennative" />
+
     <uses-feature
         android:name="android.hardware.screen.portrait"
         android:required="false" />

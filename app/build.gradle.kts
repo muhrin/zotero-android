@@ -134,6 +134,7 @@ android {
 
     packaging {
         resources.pickFirsts.add("META-INF/kotlinx-coroutines-core.kotlin_module")
+        jniLibs.pickFirsts.add("lib/*/libc++_shared.so")
     }
 
     androidComponents {
@@ -157,6 +158,11 @@ dependencies {
 
     //PSPDFKIT
     implementation(Libs.nutrient)
+
+    //Onyx (Boox) e-ink pen
+    implementation(Libs.onyxPen)
+    implementation(Libs.onyxDevice)
+    implementation(Libs.hiddenApiBypass)
 
     //GSON
     implementation(Libs.gson)
